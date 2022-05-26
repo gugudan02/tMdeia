@@ -6,6 +6,7 @@ export default async function handler(req, res) {
   let {url, type,index} = req.query
 
   if(type==='buffer'){
+    res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]))
     res.end(Buffer.concat(bigFile.temp[index]));
   }else{
     let res2 = await axios.get(url.toString(), {
