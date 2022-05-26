@@ -5,14 +5,14 @@ export default async function handler(req, res) {
   let {url, type,index} = req.query
 
   if(type==='buffer'){
-    res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]))
+    res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]).length)
     res.end(Buffer.concat(bigFile.temp[index]));
   }else if(type==='large'){
     let res2 = await axios.get(url.toString(), {
       responseType: "stream"
     })
     stream2buffer(res2.data,type).then(() => {
-      res.end({
+      res.json({
         isDone:bigFile.isDone,
         chunkNum:bigFile.temp.length,
       });
@@ -54,6 +54,7 @@ function stream2buffer(stream,type) {
     });
     stream.on("end", () => {
       if(type==='large'){
+        bigFile.temp=[]
         bigFile.temp=getNewArray(_buf,150)
       }
       resolve(Buffer.concat(_buf))
