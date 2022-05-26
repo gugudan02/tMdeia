@@ -3,37 +3,42 @@ const axios = require('axios');
 export default async function handler(req, res) {
   // console.log(req.query)
   let {url, type,index} = req.query
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
-  if(type==='buffer'){
-    res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]).length)
-    res.end(Buffer.concat(bigFile.temp[index]));
-  }else if(type==='large'){
-    let res2 = await axios.get(url.toString(), {
-      responseType: "stream"
-    })
-    stream2buffer(res2.data,type).then(() => {
-      res.json({
-        isDone:bigFile.isDone,
-        chunkNum:bigFile.temp.length,
-      });
-    })
-  }
-  else{
-    let res2 = await axios.get(url.toString(), {
-      responseType: "stream"
-    })
-    // const writer = fs.createWriteStream('test2.png');
-    // res2.data.pipe(writer);
-    stream2buffer(res2.data).then(buffer => {
+  try{
+    if(type==='buffer'){
+      res.statusCode = 200;
+      res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]).length)
+      res.end(Buffer.concat(bigFile.temp[index]));
+    }else if(type==='large'){
+      let res2 = await axios.get(url.toString(), {
+        responseType: "stream",
+      })
+      stream2buffer(res2.data,type).then(() => {
+        res.statusCode = 200;
+        res.json({
+          isDone:bigFile.isDone,
+          chunkNum:bigFile.temp.length,
+        });
+      })
+    }
+    else{
+      let res2 = await axios.get(url.toString(), {
+        responseType: "arraybuffer"
+      })
       if (type === 'pic') {
         res.setHeader('Content-Type', 'image/png');
       } else {
 
         res.setHeader('Content-Type', 'video/mp4');
       }
-      res.setHeader('Content-Length', buffer.length);
-      res.end(buffer);
-    })
+      res.setHeader('Content-Length', res2.data.length);
+      res.statusCode = 200;
+      res.end(res2.data);
+    }
+  }catch (e) {
+    res.statusCode = 500;
+    res.end(e.toString());
   }
 
 
