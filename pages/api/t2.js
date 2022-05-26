@@ -1,6 +1,5 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 const axios = require('axios');
-const fs = require('fs')
 export default async function handler(req, res) {
   // console.log(req.query)
   let {url, type,index} = req.query
@@ -8,7 +7,18 @@ export default async function handler(req, res) {
   if(type==='buffer'){
     res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]))
     res.end(Buffer.concat(bigFile.temp[index]));
-  }else{
+  }else if(type==='large'){
+    let res2 = await axios.get(url.toString(), {
+      responseType: "stream"
+    })
+    stream2buffer(res2.data,type).then(() => {
+      res.end({
+        isDone:bigFile.isDone,
+        chunkNum:bigFile.temp.length,
+      });
+    })
+  }
+  else{
     let res2 = await axios.get(url.toString(), {
       responseType: "stream"
     })
@@ -31,7 +41,7 @@ export default async function handler(req, res) {
 }
 
 
-function stream2buffer(stream) {
+function stream2buffer(stream,type) {
 
 
   return new Promise((resolve, reject) => {
@@ -43,9 +53,9 @@ function stream2buffer(stream) {
       _buf.push(chunk)
     });
     stream.on("end", () => {
-      console.log(_buf.length)
-      bigFile.temp=getNewArray(_buf,200)
-      console.log(bigFile.temp.length)
+      if(type==='large'){
+        bigFile.temp=getNewArray(_buf,150)
+      }
       resolve(Buffer.concat(_buf))
     });
     stream.on("error", (err) => reject(err));
@@ -70,5 +80,6 @@ function getNewArray(arr, size){  // size=5，要分割的长度
 
 
 let bigFile={
-  temp:[]
+  temp:[],
+  isDone:false,
 }
