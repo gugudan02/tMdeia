@@ -1,8 +1,8 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 const axios = require('axios');
 export default async function handler(req, res) {
-  // console.log(req.query)
-  let {url, type,index} = req.query
+  // console.log(req.body)
+  let {url, type,index} = req.body
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   try{
