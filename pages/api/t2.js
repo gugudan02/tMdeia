@@ -60,16 +60,28 @@ function stream2buffer(stream, type) {
     return new Promise((resolve, reject) => {
 
         const _buf = [];
-
+        let _size = 0;
+        let temp = []
         stream.on("data", (chunk) => {
             // console.log(chunk)
+            if(type === 'large'){
+                if(_size<=3*1024*1024){
+                temp.push(chunk)
+                _size += chunk.length
+                }else{
+                    bigFile.temp.push(temp)
+                    temp = [chunk]
+                    _size = chunk.length
+                }
+            }
             _buf.push(chunk)
         });
         stream.on("end", () => {
             if (type === 'large') {
-                bigFile.temp = []
-                bigFile.temp = getNewArray(_buf, 150)
+                bigFile.temp.push(temp)
             }
+            _size = null
+            temp = null
             resolve(Buffer.concat(_buf))
         });
         stream.on("error", (err) => reject(err));
