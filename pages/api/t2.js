@@ -21,6 +21,7 @@ export default async function handler(req, res) {
             res.setHeader('Content-Length', Buffer.concat(bigFile.temp[index]).length)
             res.end(Buffer.concat(bigFile.temp[index]));
         } else if (type === 'large') {
+            bigFile.temp=[]
             let res2 = await axios.get(url.toString(), {
                 responseType: "stream",
             })
