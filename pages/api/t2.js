@@ -2,7 +2,7 @@
 const axios = require('axios');
 export default async function handler(req, res) {
     // console.log(req.body)
-    let {url, type, index} = req.body
+    let {url, type, index} = req.query||req.body
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     try {
