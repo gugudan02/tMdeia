@@ -1,4 +1,11 @@
 const axios = require('axios');
+// const tunnel = require("tunnel");
+// const agent = tunnel.httpsOverHttp({
+//     proxy: {
+//         host: '127.0.0.1',
+//         port: 27336,
+//     }
+// });
 export default async function handler(req, res) {
     // console.log(req.body)
     let variables
@@ -12,12 +19,16 @@ export default async function handler(req, res) {
 
     res.setHeader('Access-Control-Allow-Origin', '*');
 
+    variables=encodeURIComponent(variables)
+    // console.log(variables)
     let respons = await axios.get('https://twitter.com/i/api/graphql/rd5YEAV4HyrN-p2WqfZZ5Q/UserMedia', {
         params: {
             variables
         },
+        // httpsAgent: agent,
+
         headers: {
-            'Connection': 'keep-alive',
+            // 'Connection': 'keep-alive',
             'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs=1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
             'Accept': '*/*',
             'Content-type': 'application/json',
